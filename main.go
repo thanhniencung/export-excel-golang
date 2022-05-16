@@ -14,15 +14,14 @@ type HeaderReport struct {
 	InvoiceId      string
 }
 
-var (
-	TEMPLATE_HEADER = "Code4Func"
-)
-
-func init() {
-
-}
 func main() {
 	initReport()
+}
+
+var orderReportSheetName = "report"
+
+func setCellValue(f *excelize.File, axis string, value interface{}) {
+	f.SetCellValue(orderReportSheetName, axis, value)
 }
 
 func initReport() {
@@ -35,23 +34,28 @@ func initReport() {
 		ReportDate:     "16/05/2022",
 		InvoiceId:      "#001",
 	}
-	orderReportSheetName := "report"
+
 	index := f.NewSheet(orderReportSheetName)
 
-	f.MergeCell(orderReportSheetName, "D2", "G2")
-	f.SetCellValue(orderReportSheetName, "D2", header.CompanyName)
+	for i := 2; i<5; i++ {
+		f.MergeCell(orderReportSheetName, fmt.Sprintf("D%d", i), fmt.Sprintf("G%d", i))
+	}
 
-	f.MergeCell(orderReportSheetName, "D3", "G3")
-	f.SetCellValue(orderReportSheetName, "D3", header.CompanyAddress)
+	for i := 3; i<5; i++ {
+		f.MergeCell(orderReportSheetName, fmt.Sprintf("L%d", i), fmt.Sprintf("N%d", i))
+	}
 
-	f.MergeCell(orderReportSheetName, "D4", "G4")
-	f.SetCellValue(orderReportSheetName, "D4", header.ContactInfo)
+	mapHeaderData := map[string] string {
+		"D2": header.CompanyName,
+		"D3": header.CompanyAddress,
+ 		"D4": header.ContactInfo,
+		"L3": header.ReportDate,
+		"L4": header.InvoiceId,
+	}
 
-	f.MergeCell(orderReportSheetName, "L3", "N3")
-	f.SetCellValue(orderReportSheetName, "L3", header.ReportDate)
-
-	f.MergeCell(orderReportSheetName, "L4", "N4")
-	f.SetCellValue(orderReportSheetName, "L4", header.InvoiceId)
+	for key, value := range mapHeaderData {
+		setCellValue(f, key, value)
+	}
 
 	f.SetActiveSheet(index)
 	if err := f.SaveAs("report.xlsx"); err != nil {
@@ -59,8 +63,4 @@ func initReport() {
 	}
 }
 
-func mergeAndSaveValueCell(file *excelize.File, nameOfSheet, beginCell, end string,
-	value interface{}) {
-	f.MergeCell(nameOfSheet, beginRow, endRow)
-	f.SetCellValue(nameOfSheet, D2, D2)
-}
+
